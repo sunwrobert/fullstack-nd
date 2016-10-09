@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h2 class="title is-2">
+            What's on your mind?
+        </h2>
+        <div class="content">
+            <form method="post">
+                <label class="label">Title</label>
+                <p class="control">
+                    <input class="input
+                    {% if error_title %}
+                    is-danger
+                    {% endif %}" type="text" name="title" value="{{title}}">
+
+                    {% if error_title %}
+                    <span class="help is-danger">{{error_title}}</span>
+                    {% endif %}
+                </p>
+
+                <label class="label">Content</label>
+                <p class="control">
+                    <textarea class="textarea
+                    {% if error_content %}
+                    is-danger
+                    {% endif %}" name="content">{{content}}</textarea>
+
+                    {% if error_content %}
+                    <span class="help is-danger">{{error_content}}</span>
+                    {% endif %}
+                </p>
+                
+                <p class="control">
+                    <button class="button is-primary">Post</button>
+                </p>
+
+                {% if post_success %}
+                    <span class="help is-success">{{post_success}}</span>
+                {% endif %}
+                
+                <p><a href="/">Back to home</p></a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
