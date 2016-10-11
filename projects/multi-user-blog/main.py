@@ -13,6 +13,16 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 
 SECRET = '9Ij$p_9n6RtM37x'
 
+def is_author(user, post):
+    if user and user.name == post.author:
+        return True
+    else:
+        return False
+
+def render_str(template, **params):
+    t = jinja_env.get_template(template)
+    return t.render(params)
+
 def make_secure_val(s):
     return "%s|%s" % (s, hmac.new(SECRET, s).hexdigest())
 
@@ -33,7 +43,7 @@ def make_pw_hash(name, pw, salt=None):
 def valid_pw(name, password, h):
     salt = h.split(',')[0]
     return h == make_pw_hash(name, password, salt)
-
+    
 class User(db.Model):
     name = db.StringProperty(required = True)
     pw_hash = db.StringProperty(required = True)
@@ -58,7 +68,34 @@ class User(db.Model):
         u = cls.by_name(name)
         if u and valid_pw(name, pw, u.pw_hash):
             return u
+            
+class BlogPost(db.Model):
+    title = db.StringProperty(required=True)
+    content = db.TextProperty(required=True)
+    author = db.StringProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
 
+    def render(self):
+        self._render_text = self.content.replace('\n', '<br>')
+        return render_str("post.html", post = self)
+
+class Like(db.Model):
+    user_id = db.IntegerProperty(required=True)
+    post_id = db.IntegerProperty(required=True)
+    liked = db.BooleanProperty(required=True)
+
+class Comment(db.Model):
+    post_id = db.IntegerProperty(required=True)
+    comment = db.TextProperty(required=True)
+    author = db.StringProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+
+    def render(self):
+        self._render_text = self.content.replace('\n', '<br>')
+        return render_str("post.html", post = self)
+        
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -89,33 +126,50 @@ class Handler(webapp2.RequestHandler):
         uid = self.read_secure_cookie('user_id')
         self.user = uid and User.by_id(int(uid))
 
-class BlogPost(db.Model):
-    title = db.StringProperty(required=True)
-    content = db.TextProperty(required=True)
-    author = db.StringProperty(required=True)
-    created = db.DateTimeProperty(auto_now_add=True)
-
 class MainPage(Handler):
     def get(self):
+        params = {}
         # Sort the blog posts in descending order from date created ie. show newest blog entries on top
         blog_posts = BlogPost.all().order('-created')
         username = ''
+        blog_posts_with_likes = {}
         if self.user:
             username = self.user.name
-        self.render("blog.html", username=username, blog_posts=blog_posts)
+
+        params['username'] = username
+        params['blog_posts'] = blog_posts
+
+        self.render("blog.html", **params)
+    
+    def post(self):
+        params = {}
+        # Sort the blog posts in descending order from date created ie. show newest blog entries on top
+        blog_posts = BlogPost.all().order('-created')
+        
+        username = ''
+        if self.user:
+            username = self.user.name
+        params['username'] = username
+        params['blog_posts'] = blog_posts
+
+        self.render("blog.html", **params)
+
 
 class SignUpPage(Handler):
     def get(self):
         self.render("signup.html")
     
     def post(self):
+        params = {}
         have_error = False
         username = self.request.get("username")
         password = self.request.get("password")
         confirm_password = self.request.get("confirm_password")        
         email = self.request.get("email")
         
-        params = dict(username = username, email = email)
+        params['username'] = username
+        params['email'] = email
+
         if not username:
             params['error_username'] = "That's not a valid username"
             have_error = True
@@ -146,11 +200,11 @@ class LoginPage(Handler):
         self.render("login.html")
     
     def post(self):
+        params = {}
         have_error = False
         username = self.request.get("username")
         password = self.request.get("password")
-        params = dict(username = username)
-        
+        params['username'] = username
         if not username:
             params['error_username'] = "That's not a valid username"
             have_error = True
@@ -171,8 +225,82 @@ class LoginPage(Handler):
                 self.render("login.html", **params)
             
 class PostPage(Handler):
-    def get(self):
-        pass
+    def retrieve_post(self, post_id):
+        key = db.Key.from_path('BlogPost', int(post_id))
+        post = db.get(key)
+        return post
+
+    def get(self, post_id):
+        params = {}
+        post = self.retrieve_post(post_id)
+        if not post:
+            self.error(404)
+            return
+        
+        liked = False
+
+        editable = is_author(self.user, post)
+        
+        if self.user and not editable:
+            likeModel = Like.all().filter('user_id =', self.user.key().id()).filter('post_id =', post.key().id()).get()
+            if likeModel:
+                liked = likeModel.liked
+            else:
+                l = Like(user_id=self.user.key().id(), post_id=post.key().id(), liked=False)
+                l.put()
+        
+        params['post'] = post
+        params['editable'] = editable
+        params['title'] = post.title
+        params['content'] = post.content
+        params['liked'] = liked
+        params['user'] = self.user
+        self.render("permalink.html", **params)
+    
+    def post(self, post_id):
+        params = {}
+        post = self.retrieve_post(post_id)
+        if not post:
+            self.error(404)
+            return
+        
+        editable = is_author(self.user, post)
+
+        have_error = False
+
+        title = self.request.get("title")
+        content = self.request.get("content")
+        liked = self.request.get("liked")
+        self.write("test2")
+
+        params['title'] = title
+        params['content'] = content
+        params['post'] = post
+        params['editable'] = editable
+        
+        if self.user and not editable:
+            if liked:
+                l = Like.all().filter('user_id =', self.user.key().id()).filter('post_id =', post.key().id()).get()
+                l.liked = not l.liked
+                l.put()
+                # Add question mark to redirect to the same page 
+                self.redirect('%s?q=like' % str(post.key().id()))
+
+        if not title:
+            params['error_title'] = "Please enter a title."
+            have_error = True
+            
+        if not content:
+            params['error_content'] = "Please enter some content."            
+            have_error = True
+        
+        if have_error:
+            self.render('permalink.html', **params)
+        else:
+            post.title = title
+            post.content = content
+            post.put()
+            self.redirect('%s' % str(post.key().id()))
 
 class LogoutPage(Handler):
     def get(self):
@@ -195,10 +323,12 @@ class NewPostPage(Handler):
 
     def post(self):
         if self.user:
+            params = {}
             have_error = False
             title = self.request.get("title")
             content = self.request.get("content")
-            params = dict(title = title, content = content)
+            params['title'] = title
+            params['content'] = content
             
             if not title:
                 params['error_title'] = "Please enter a title."
@@ -211,12 +341,11 @@ class NewPostPage(Handler):
             if have_error:
                 self.render('newpost.html', **params)
             else:
-                a = BlogPost(title=title, content=content, author=self.user.name)
-                a.put()
-                params['post_success'] = "Blog entry successfully posted!"
-                self.render("newpost.html", **params)
+                post = BlogPost(title=title, content=content, author=self.user.name)
+                post.put()
+                self.redirect('%s' % str(post.key().id()))
         else:
-            self.redirect("/signup")
+            self.redirect("/")
 
 app = webapp2.WSGIApplication([
     ('/?', MainPage),
