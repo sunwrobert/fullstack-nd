@@ -7,6 +7,13 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class EditComment(BlogHandler):
+    """ Handler for editing comment page
+
+    GET: Get the current comment from the path and check if the user has proper permissions to edit it.
+    POST: Do form validation and then check if the author has permission. If so, update the comment 
+    and then redirect with a message. Else, redirect with an error
+
+    """
     def get(self, post_id, comment_id):
         if self.user:
             key = db.Key.from_path('Comment', int(comment_id), parent=blog_key())

@@ -6,6 +6,13 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class EditPost(BlogHandler):
+    """ Handler for editing post page
+
+    GET: Get the current post from the path and check if the user has proper permissions to edit it.
+    POST: Do form validation and then check if the author has permission. If so, update the post 
+    and then redirect with a message. Else, redirect with an error
+
+    """
     def get(self, post_id):
         if self.user:
             key = db.Key.from_path('Post', int(post_id), parent=blog_key())

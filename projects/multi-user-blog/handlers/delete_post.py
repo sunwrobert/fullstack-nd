@@ -6,6 +6,13 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class DeletePost(BlogHandler):
+    """ Handler for deleting posts
+
+    There is no GET because users shouldn't be visiting this
+    POST: Get the post based on post id and check if the current user is the same as the comment's user.
+     If so, delete the post. Else, redirect with an error
+
+    """
     def post(self, post_id):
         if self.user:
             key = db.Key.from_path('Post', int(post_id), parent=blog_key())

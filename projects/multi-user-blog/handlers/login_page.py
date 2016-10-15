@@ -2,6 +2,12 @@ from handlers.blog_handler import BlogHandler
 from models.user import User
 
 class Login(BlogHandler):
+    """ Handler for login page
+
+    GET: Simply render the login form html page
+    POST: Form validation with proper redirects based on if the form is valid and the user exists or not.
+
+    """
     def get(self):
         self.render('login-form.html')
 

@@ -2,6 +2,13 @@ from models.user import User
 from handlers.blog_handler import BlogHandler
 
 class Signup(BlogHandler):
+    """ Handler for signing up
+
+    GET: Render the sign up form html page
+    POST: Do form validation and and check if all of the fields are valid. If so, register the user and 
+    put into the database. If not, render an error message on the page.
+
+    """
     def get(self):
         self.render("signup-form.html")
 

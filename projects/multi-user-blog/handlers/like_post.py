@@ -7,6 +7,12 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class LikePost(BlogHandler):
+    """ Handler for liking posts
+
+    No GET request because there is no page for them to visit
+    POST: Adds a Like to the database if there is no like yet. If there is, redirect to the post page with a message saying they've already liked the post.
+
+    """
     def post(self, post_id):
         if self.user:
             key = db.Key.from_path('Post', int(post_id), parent=blog_key())

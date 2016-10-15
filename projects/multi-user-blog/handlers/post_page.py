@@ -8,6 +8,12 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class PostPage(BlogHandler):
+    """ Handler for the permalink post page
+
+    GET: Get all the posts, the number of likes associated with that post, and the comments associated with that post 
+    and then render it to the screen. Can also render optional error and regular messages
+
+    """
     def get(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)

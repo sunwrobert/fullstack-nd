@@ -6,6 +6,13 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class NewPost(BlogHandler):
+    """ Handler for making a new post
+
+    GET: Render the new post page
+    POST: Do form validation and then check if the author has permission. If so, make a new post.
+    Else, redirect to the blog with an error
+
+    """
     def get(self):
         if self.user:
             self.render("newpost.html")

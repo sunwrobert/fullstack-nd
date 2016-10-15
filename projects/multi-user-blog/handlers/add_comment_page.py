@@ -7,6 +7,12 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class CommentPage(BlogHandler):
+    """ Handler for the add comment page
+
+    GET: Renders the add comment form and takes in the post_id for a back link.
+    POST: Adds a new comment if the form validation passes.
+
+    """
     def get(self, post_id):
         if self.user:
             self.render("addcomment.html", post_id=post_id)

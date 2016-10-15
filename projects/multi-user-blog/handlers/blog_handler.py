@@ -13,6 +13,11 @@ def check_secure_val(secure_val):
         return val
 
 class BlogHandler(webapp2.RequestHandler):
+    """ Parent handler for many of the handlers used on the site
+
+    Holds a lot of helper functions for the other handlers as well as dealing with the login/logout logic
+
+    """
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
 
