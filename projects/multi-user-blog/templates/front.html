@@ -4,6 +4,7 @@
 
   {% for p in posts %}
     {{ p.render() | safe }}
+    <a href="blog/{{p.key().id()}}">view post</a>
     <br><br>
   {% endfor %}
 
