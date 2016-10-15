@@ -2,6 +2,14 @@
 
 {% block content %}
   {{post.render() | safe}}
+  <form method="POST" action="{{post.key().id()}}/like">
+    <button>Likes {{num_likes}}</button>  
+  </form>
+  <a href="{{post.key().id()}}/like"></a>
   <a href="{{post.key().id()}}/edit">Edit post</a>
-  <a href="{{post.key().id()}}/delete">Delete post</a>  
+  <form method="POST" action="{{post.key().id()}}/delete">
+    <button>Delete Post</button>
+  </form>
+  
+  {{error}}
 {% endblock %}

@@ -6,5 +6,5 @@ def blog_key(name = 'default'):
     
 class BlogFront(BlogHandler):
     def get(self):
-        posts = greetings = Post.all().order('-created')
+        posts = Post.all().order('-created')
         self.render('front.html', posts = posts)

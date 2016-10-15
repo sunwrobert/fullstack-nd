@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+  <a href="blog/newpost">new post</a>
   {% for p in posts %}
     {{ p.render() | safe }}
     <a href="blog/{{p.key().id()}}">view post</a>
