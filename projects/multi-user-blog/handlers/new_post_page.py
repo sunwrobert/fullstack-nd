@@ -22,7 +22,7 @@ class NewPost(BlogHandler):
         if subject and content:
             p = Post(parent = blog_key(), subject = subject, content = content, author=self.user)
             p.put()
-            self.redirect('/blog/%s' % str(p.key().id()))
+            self.redirect('/blog/%s?message=Post successfully created!' % str(p.key().id()))
         else:
-            error = "subject and content, please!"
+            error = "Please enter the subject and content."
             self.render("newpost.html", subject=subject, content=content, error=error)

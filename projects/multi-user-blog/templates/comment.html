@@ -1,12 +1,9 @@
-<blockquote>
-<div class="post-heading">
-    <div class="post-date">
-      {{comment.author.name}}, 
-      {{comment.created.strftime("%b %d, %Y")}}
-    </div>
+<article class="message">
+  <div class="message-header">
+    <strong>{{comment.author.name}}</strong> <small>{{comment.created.strftime("%b %d, %Y")}}</small> 
+    
   </div>
-
-  <div class="post-content">
+  <div class="message-body">
     {{comment._render_text | safe}}
   </div>
-</blockquote>
+</article>

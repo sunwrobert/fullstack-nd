@@ -1,11 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <a href="/blog/newpost">new post</a>
+<div class="container">
+  <h2 class="title is-2">Create a <a href="/blog/newpost">new post</a></h2>
+  
+  {% if message %}
+  <div class="notification is-info">
+    {{message}}
+  </div>
+  {% endif %}
   {% for p in posts %}
+  <div class="box">
     {{ p.render() | safe }}
-    <a href="/blog/{{p.key().id()}}">view post</a>
-    <br><br>
+    <p><a href="/blog/{{p.key().id()}}">View post</a></p>
+  </div>
+    
   {% endfor %}
-  {{message}}
+</div>
+  
 {% endblock %}

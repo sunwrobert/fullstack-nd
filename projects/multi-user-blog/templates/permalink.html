@@ -1,24 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
+  {% if message %}
+  <div class="notification is-info">
+    {{message}}    
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="notification is-danger">
+    {{error}}
+  </div>
+  {% endif %}
+
   {{post.render() | safe}}
-  <form method="POST" action="/blog/{{post.key().id()}}/like">
-    <button>Likes {{num_likes}}</button>  
-  </form>
-  <a href="/blog/{{post.key().id()}}/comment">Add comment</a>
-  <a href="/blog/{{post.key().id()}}/edit">Edit post</a>
-  <form method="POST" action="/blog/{{post.key().id()}}/delete">
-    <button>Delete Post</button>
-  </form>
-  
-  {{error}}
-  {{message}}
-  {% for c in comments %}
-    {{c.render() | safe}}
-    <a href="/blog/{{post.key().id()}}/{{c.key().id()}}/edit">Edit</a>
-    
-    <form method="POST" action="/blog/{{post.key().id()}}/{{c.key().id()}}/delete">
-      <button>Delete</button>
+  <div class="control is-grouped">
+    <form class="control" method="POST" action="/blog/{{post.key().id()}}/like">
+      <button class="button is-primary">Likes - {{num_likes}}</button>  
     </form>
+    <a class="button is-info control"href="/blog/{{post.key().id()}}/edit">Edit post</a>
+    <form class="control" method="POST" action="/blog/{{post.key().id()}}/delete">
+      <button class="button is-danger">Delete post</button>
+    </form>
+    <a class="button control" href="/blog/{{post.key().id()}}/comment">Add comment</a>
+  </div>
+  
+  <a class="button" href="/blog/">Back</a>
+  <br><br>
+  <h2 class="title is-2">Comments</h2>
+  {% for c in comments %}
+  <div class="columns">
+    <div class="column is-11">
+    {{c.render() | safe}}
+      
+    </div>
+    <div class="column is-1">
+      <a class="button is-info" href="/blog/{{post.key().id()}}/{{c.key().id()}}/edit">Edit</a>
+    
+      <form method="POST" action="/blog/{{post.key().id()}}/{{c.key().id()}}/delete">
+        <button class="button is-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+    
   {% endfor %}
+</div>
 {% endblock %}

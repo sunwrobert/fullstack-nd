@@ -1,70 +1,47 @@
-<!DOCTYPE html>
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h2 class="title is-2">Signup</h2>
+  <form method="post">
+    <label class="label">Username</label>
+    <p class="control">
+      <input class="input" type="text" name="username" value="{{username}}">
+    </p>
+    {% if error_username %}
+    <div class="notification is-danger">
+      {{error_username}}
+    </div>
+    {% endif %}
 
-<html>
-  <head>
-    <title>Sign Up</title>
-    <style type="text/css">
-      .label {text-align: right}
-      .error {color: red}
-    </style>
+    <label class="label">Password</label>
+    <p class="control">
+      <input class="input" type="password" name="password" value="">
+    </p>
+    {% if error_password %}
+    <div class="notification is-danger">
+      {{error_password}}
+    </div>
+    {% endif %}
 
-  </head>
+    <label class="label">Confirm Password</label>
+    <p class="control">
+      <input class="input" type="password" name="verify" value="">
+    </p>
+    {% if error_verify %}
+    <div class="notification is-danger">
+      {{error_verify}}
+    </div>
+    {% endif %}
 
-  <body>
-    <h2>Signup</h2>
-    <form method="post">
-      <table>
-        <tr>
-          <td class="label">
-            Username
-          </td>
-          <td>
-            <input type="text" name="username" value="{{username}}">
-          </td>
-          <td class="error">
-            {{error_username}}
-          </td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            Password
-          </td>
-          <td>
-            <input type="password" name="password" value="">
-          </td>
-          <td class="error">
-            {{error_password}}
-          </td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            Verify Password
-          </td>
-          <td>
-            <input type="password" name="verify" value="">
-          </td>
-          <td class="error">
-            {{error_verify}}
-          </td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            Email (optional)
-          </td>
-          <td>
-            <input type="text" name="email" value="{{email}}">
-          </td>
-          <td class="error">
-            {{error_email}}
-          </td>
-        </tr>
-      </table>
-
-      <input type="submit">
-    </form>
-  </body>
-
-</html>
+    <label class="label">Email (optional)</label>
+    <p class="control">
+      <input class="input" type="text" name="email" value="{{email}}">
+    </p>
+    {% if error_email %}
+    <div class="notification is-danger">
+      {{error_email}}
+    </div>
+    {% endif %}
+    <button class="button is-primary">Signup</button>
+  </form>
+</div>
+{% endblock %}

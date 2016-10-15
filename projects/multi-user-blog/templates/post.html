@@ -1,16 +1,9 @@
-<div class="post">
-  <div class="post-heading">
-    <div class="post-title">
-      {{p.subject}}
-    </div>
-
-    <div class="post-date">
-      {{p.author.name}}, 
-      {{p.created.strftime("%b %d, %Y")}}
-    </div>
-  </div>
-
-  <div class="post-content">
+<div class="content">
+  <h3 class="title is-3">{{p.subject}}</h3>
+  <p>
+    <strong>{{p.author.name}}</strong> <small>{{p.created.strftime("%b %d, %Y")}}</small>    
+  </p>
+  <p>
     {{p._render_text | safe}}
-  </div>
+  </p>
 </div>
