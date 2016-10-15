@@ -7,4 +7,5 @@ def blog_key(name = 'default'):
 class BlogFront(BlogHandler):
     def get(self):
         posts = Post.all().order('-created')
-        self.render('front.html', posts = posts)
+        message = self.request.get("message")
+        self.render('front.html', posts = posts, message = message)

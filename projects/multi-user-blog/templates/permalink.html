@@ -2,12 +2,12 @@
 
 {% block content %}
   {{post.render() | safe}}
-  <form method="POST" action="{{post.key().id()}}/like">
+  <form method="POST" action="/blog/{{post.key().id()}}/like">
     <button>Likes {{num_likes}}</button>  
   </form>
-  <a href="{{post.key().id()}}/comment">Add comment</a>
-  <a href="{{post.key().id()}}/edit">Edit post</a>
-  <form method="POST" action="{{post.key().id()}}/delete">
+  <a href="/blog/{{post.key().id()}}/comment">Add comment</a>
+  <a href="/blog/{{post.key().id()}}/edit">Edit post</a>
+  <form method="POST" action="/blog/{{post.key().id()}}/delete">
     <button>Delete Post</button>
   </form>
   
@@ -15,9 +15,9 @@
   {{message}}
   {% for c in comments %}
     {{c.render() | safe}}
-    <a href="{{post.key().id()}}/{{c.key().id()}}/edit">Edit</a>
+    <a href="/blog/{{post.key().id()}}/{{c.key().id()}}/edit">Edit</a>
     
-    <form method="POST" action="{{post.key().id()}}/{{c.key().id()}}/delete">
+    <form method="POST" action="/blog/{{post.key().id()}}/{{c.key().id()}}/delete">
       <button>Delete</button>
     </form>
   {% endfor %}
