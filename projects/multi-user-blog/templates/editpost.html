@@ -1,21 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>edit post</h2>
+<div class="container">
+  {{post.render() | safe}}
+  <h2 class="title is-2">Edit Post</h2>
+  <form method="post">
+    <label class="label">Subject</label>
+    <p class="control">
+      <input class="input" type="text" name="subject" value="{{subject}}">
+    </p>
 
-    <form method="post">
-      <label>
-        <div>subject</div>
-        <input type="text" name="subject" value="{{subject}}">
-      </label>
-
-      <label>
-        <div>blog</div>
-        <textarea name="content">{{content}}</textarea>
-      </label>
-
-      <div class="error">{{error}}</div>
-
-      <a href="/blog/{{post_id}}">Cancel</a><input type="submit">
-    </form>
+    <label class="label">Content</label>
+    <p class="control">
+      <textarea class="textarea" type="text" name="content">{{content}}</textarea>
+    </p>
+    {% if error %}
+    <div class="notification is-danger">
+      {{error}}
+    </div>
+    {% endif %}
+    <a class="button" href="/blog/{{post_id}}">Cancel</a>
+    <button class="button is-primary">Post</button>
+  </form>
+</div>
+  
 {% endblock %}
+

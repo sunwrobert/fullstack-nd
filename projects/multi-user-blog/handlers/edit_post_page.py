@@ -18,7 +18,7 @@ class EditPost(BlogHandler):
             if post.author.name != self.user.name:
                 self.redirect("/blog/%s?error=You don't have access to edit this post." % post_id)
             
-            self.render("editpost.html", subject=post.subject, content=post.content, error=error, post_id=post_id)
+            self.render("editpost.html", subject=post.subject, content=post.content, error=error, post_id=post_id, post=post)
         else:
             self.redirect("/login")
     
@@ -26,20 +26,19 @@ class EditPost(BlogHandler):
         if self.user:
             subject = self.request.get('subject')
             content = self.request.get('content')
-
-            if subject and content:
-                key = db.Key.from_path('Post', int(post_id), parent=blog_key())
-                post = db.get(key)
+            key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+            post = db.get(key)
+            if subject and content:    
                 if post.author.name == self.user.name:
                     post.subject = subject
                     post.content = content
                     post.put()
-                    self.redirect('/blog/%s' % post_id)
+                    self.redirect("/blog/%s?message=Post updated successfully!" % post_id)
                 else:
-                    self.redirect('/blog/%s' % post_id)
+                    self.redirect("/blog/%s?error=You don't have permission to edit this post!" % post_id)
             else:
                 error = "Please enter the subject and content."
-                self.render("editpost.html", subject=subject, content=content, error=error, post_id=post_id)
+                self.render("editpost.html", subject=subject, content=content, error=error, post_id=post_id, post=post)
         else:
             self.redirect('/login')
 

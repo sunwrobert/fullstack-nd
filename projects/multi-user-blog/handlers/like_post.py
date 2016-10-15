@@ -16,7 +16,9 @@ class LikePost(BlogHandler):
                 if not like:
                     l = Like(post=post, user=self.user)
                     l.put()
-                self.redirect("/blog/%s" % post_id)
+                    self.redirect("/blog/%s?message=You liked the post!" % post_id)
+                else:
+                    self.redirect("/blog/%s?message=You already liked this post!" % post_id)
             else:
                 self.redirect("/blog/%s?error=You can't like your own post!" % post_id)
         else:
