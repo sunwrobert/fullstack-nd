@@ -18,7 +18,7 @@ class EditPost(BlogHandler):
             if post.author.name != self.user.name:
                 self.redirect("/blog/%s?error=You don't have access to edit this post." % post_id)
             
-            self.render("editpost.html", subject=post.subject, content=post.content, error=error)
+            self.render("editpost.html", subject=post.subject, content=post.content, error=error, post_id=post_id)
         else:
             self.redirect("/login")
     
@@ -39,7 +39,7 @@ class EditPost(BlogHandler):
                     self.redirect('/blog/%s' % post_id)
             else:
                 error = "Please enter the subject and content."
-                self.render("editpost.html", subject=subject, content=content, error=error)
+                self.render("editpost.html", subject=subject, content=content, error=error, post_id=post_id)
         else:
             self.redirect('/login')
 

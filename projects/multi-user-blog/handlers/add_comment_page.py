@@ -9,7 +9,7 @@ def blog_key(name = 'default'):
 class CommentPage(BlogHandler):
     def get(self, post_id):
         if self.user:
-            self.render("addcomment.html")
+            self.render("addcomment.html", post_id=post_id)
         else:
             self.redirect("/login")
 
@@ -27,4 +27,4 @@ class CommentPage(BlogHandler):
             self.redirect('/blog/%s?message=Comment successfully added!' % str(post.key().id()))
         else:
             error = "Please enter some content"
-            self.render("addcomment.html",content=content, error=error)
+            self.render("addcomment.html", post_id=post_id, content=content, error=error)

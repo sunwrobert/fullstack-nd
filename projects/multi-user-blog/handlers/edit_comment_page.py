@@ -18,7 +18,7 @@ class EditComment(BlogHandler):
             if comment.author.name != self.user.name:
                 self.redirect("/blog/%s?error=You don't have access to edit this comment." % post_id)
             
-            self.render("editcomment.html", content=comment.content)
+            self.render("editcomment.html", post_id=post_id, comment = comment)
         else:
             self.redirect("/login")
     
@@ -37,7 +37,7 @@ class EditComment(BlogHandler):
                     self.redirect("/blog/%s?error=You don't have access to edit this comment." % post_id)
             else:
                 error = "Please enter some content."
-                self.render("editcomment.html", content=content, error=error)
+                self.render("editcomment.html", post_id=post_id, content=content, error=error)
         else:
             self.redirect('/login')
 
