@@ -15,6 +15,9 @@ from handlers.new_post_page import NewPost
 from handlers.edit_post_page import EditPost
 from handlers.delete_post import DeletePost
 from handlers.like_post import LikePost
+from handlers.add_comment_page import CommentPage
+from handlers.edit_comment_page import EditComment
+from handlers.delete_comment import DeleteComment
 from handlers.signup_page import Signup
 from handlers.login_page import Login
 from handlers.logout_page import Logout
@@ -25,6 +28,9 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/blog/([0-9]+)/edit', EditPost),
                                ('/blog/([0-9]+)/delete', DeletePost),
                                ('/blog/([0-9]+)/like', LikePost),
+                               ('/blog/([0-9]+)/comment', CommentPage),
+                               ('/blog/([0-9]+)/([0-9]+)/edit', EditComment),
+                               ('/blog/([0-9]+)/([0-9]+)/delete', DeleteComment),
                                ('/blog/newpost', NewPost),
                                ('/signup', Signup),
                                ('/login', Login),

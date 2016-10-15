@@ -5,11 +5,20 @@
   <form method="POST" action="{{post.key().id()}}/like">
     <button>Likes {{num_likes}}</button>  
   </form>
-  <a href="{{post.key().id()}}/like"></a>
+  <a href="{{post.key().id()}}/comment">Add comment</a>
   <a href="{{post.key().id()}}/edit">Edit post</a>
   <form method="POST" action="{{post.key().id()}}/delete">
     <button>Delete Post</button>
   </form>
   
   {{error}}
+  {{message}}
+  {% for c in comments %}
+    {{c.render() | safe}}
+    <a href="{{post.key().id()}}/{{c.key().id()}}/edit">Edit</a>
+    
+    <form method="POST" action="{{post.key().id()}}/{{c.key().id()}}/delete">
+      <button>Delete</button>
+    </form>
+  {% endfor %}
 {% endblock %}
