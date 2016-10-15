@@ -1,6 +1,6 @@
 # Udacity Multi Blog Project
 
-Link: https://udacity-multi-blog-project.appspot.com/
+Link: https://multi-user-blog-145821.appspot.com/blog
 
 ## Steps to run
 
