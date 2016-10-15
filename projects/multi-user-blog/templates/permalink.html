@@ -2,4 +2,6 @@
 
 {% block content %}
   {{post.render() | safe}}
+  <a href="{{post.key().id()}}/edit">Edit post</a>
+  <a href="{{post.key().id()}}/delete">Delete post</a>  
 {% endblock %}
