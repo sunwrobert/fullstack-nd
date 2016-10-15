@@ -21,7 +21,7 @@ class NewPost(BlogHandler):
         if self.user:
             self.render("newpost.html")
         else:
-            self.redirect("/login")
+            return self.redirect("/login")
 
     def post(self):
         if not self.user:
@@ -34,7 +34,7 @@ class NewPost(BlogHandler):
             p = Post(parent=blog_key(), subject=subject,
                      content=content, author=self.user)
             p.put()
-            self.redirect(
+            return self.redirect(
                 '/blog/%s?message=Post successfully created!'
                 % str(p.key().id()))
         else:

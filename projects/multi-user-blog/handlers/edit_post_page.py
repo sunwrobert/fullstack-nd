@@ -29,7 +29,7 @@ class EditPost(BlogHandler):
                 return
 
             if post.author.name != self.user.name:
-                self.redirect(
+                return self.redirect(
                     "/blog/%s?error=You don't have access to edit this post."
                     % post_id)
 
@@ -37,7 +37,7 @@ class EditPost(BlogHandler):
                         content=post.content, error=error, post_id=post_id,
                         post=post)
         else:
-            self.redirect("/login")
+            return self.redirect("/login")
 
     def post(self, post_id):
         if self.user:
@@ -50,11 +50,11 @@ class EditPost(BlogHandler):
                     post.subject = subject
                     post.content = content
                     post.put()
-                    self.redirect(
+                    return self.redirect(
                         "/blog/%s?message=Post updated successfully!"
                         % post_id)
                 else:
-                    self.redirect(
+                    return self.redirect(
                         "/blog/%s?error=You don't have permission to edit " +
                         "this post!" % post_id)
             else:
@@ -63,4 +63,4 @@ class EditPost(BlogHandler):
                             content=content, error=error, post_id=post_id,
                             post=post)
         else:
-            self.redirect('/login')
+            return self.redirect('/login')

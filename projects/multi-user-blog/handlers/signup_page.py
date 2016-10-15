@@ -54,4 +54,4 @@ class Signup(BlogHandler):
                 u.put()
 
                 self.login(u)
-                self.redirect('/blog')
+                return self.redirect('/blog')

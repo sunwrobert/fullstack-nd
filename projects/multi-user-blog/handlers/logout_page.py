@@ -14,4 +14,4 @@ class Logout(BlogHandler):
             self.logout()
             self.render("logout.html")
         else:
-            self.redirect('/blog')
+            return self.redirect('/blog')

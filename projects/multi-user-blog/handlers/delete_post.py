@@ -24,12 +24,12 @@ class DeletePost(BlogHandler):
             post = db.get(key)
             if post.author.name == self.user.name:
                 post.delete()
-                self.redirect("/blog?message=Deleted post successfully!")
+                return self.redirect("/blog?message=Deleted post successfully!")
             else:
-                self.redirect(
+                return self.redirect(
                     "/blog/%s?error=You don't have access to delete this post."
                     % post_id)
         else:
-            self.redirect(
+            return self.redirect(
                 "/login?error=You need to be logged, in order to delete " +
                 "a post")

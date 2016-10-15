@@ -21,7 +21,7 @@ class CommentPage(BlogHandler):
         if self.user:
             self.render("addcomment.html", post_id=post_id)
         else:
-            self.redirect("/login")
+            return self.redirect("/login")
 
     def post(self, post_id):
         if not self.user:
@@ -35,7 +35,7 @@ class CommentPage(BlogHandler):
             c = Comment(parent=blog_key(), post=post, content=content,
                         author=self.user)
             c.put()
-            self.redirect('/blog/%s?message=Comment successfully added!'
+            return self.redirect('/blog/%s?message=Comment successfully added!'
                           % str(post.key().id()))
         else:
             error = "Please enter some content"

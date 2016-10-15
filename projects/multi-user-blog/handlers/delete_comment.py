@@ -25,13 +25,13 @@ class DeleteComment(BlogHandler):
             comment = db.get(key)
             if comment.author.name == self.user.name:
                 comment.delete()
-                self.redirect(
+                return self.redirect(
                     "/blog/%s?message=Deleted comment successfully!" % post_id)
             else:
-                self.redirect(
+                return self.redirect(
                     "/blog/%s?error=You don't have access to delete " +
                     "this comment." % post_id)
         else:
-            self.redirect(
+            return self.redirect(
                 "/login?error=You need to be logged, in order to " +
                 "delete a post")
