@@ -5,6 +5,7 @@ This project provides a python module that connects to a PostgresSQL database in
 ## How to Run
 
 This project requires Vagrant to run, which can be downloaded here: https://www.vagrantup.com/
+
 1. `git clone https://github.com/sunwrobert/fullstack-nd.git`
 2. `cd projects/tournament-results/vagrant`
 3. `vagrant up`
