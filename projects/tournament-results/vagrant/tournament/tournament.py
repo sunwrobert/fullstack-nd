@@ -8,7 +8,7 @@ import psycopg2
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=test")
+    return psycopg2.connect("dbname=tournament")
 
 
 def deleteMatches():
@@ -25,7 +25,7 @@ def deletePlayers():
     """Remove all the player records from the database."""
     conn = connect()
     db_cursor = conn.cursor()
-    query = "DELETE FROM matplayersches;"
+    query = "DELETE FROM players;"
     db_cursor.execute(query)
     conn.commit()
     conn.close()    
@@ -54,8 +54,8 @@ def registerPlayer(name):
 
     conn = connect()
     db_cursor = conn.cursor()
-    query = "INSERT INTO players (name) VALUES ('%s');" % name
-    db_cursor.execute(query)
+    query = "INSERT INTO players (name) VALUES (%s);"
+    db_cursor.execute(query, (name,))
     conn.commit()
     conn.close()    
 
@@ -75,8 +75,13 @@ def playerStandings():
     """
     conn = connect()
     db_cursor = conn.cursor()
-    query = "SELECT PLAYERS.id, NAME, COUNT(winner) FROM players, matches where \
-    players.id = winner group by players.id order by count(winner) desc;"
+    base_query = "SELECT PLAYERS.id, NAME, COUNT(matches.id) as %s FROM players left join matches \
+    on players.id = %s group by players.id"
+    win_query = base_query % ('wins', 'winner')
+    lose_query = base_query % ('losses', 'loser')    
+
+    query = "SELECT winners.id, winners.name, wins, wins+losses FROM (%s) as winners left join (%s) \
+    as losers on winners.id = losers.id order by wins desc;" % (win_query, lose_query)
     db_cursor.execute(query)
     players = db_cursor.fetchall()
     conn.close()
@@ -92,8 +97,8 @@ def reportMatch(winner, loser):
     """
     conn = connect()
     db_cursor = conn.cursor()
-    query = "INSERT INTO matches (winner, loser) values (%s, %s);" % (winner, loser)
-    db_cursor.execute(query)
+    query = "INSERT INTO matches (winner, loser) values (%s, %s);"
+    db_cursor.execute(query, (winner, loser))
     conn.commit()
     conn.close() 
  
@@ -118,5 +123,3 @@ def swissPairings():
             for ind, x in enumerate(playerStandings()) if ind % 2 == 0]
 
 print playerStandings()
-print countPlayers()
-print swissPairings()
