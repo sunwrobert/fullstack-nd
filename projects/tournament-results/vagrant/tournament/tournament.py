@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# 
+#
 # tournament.py -- implementation of a Swiss-system tournament
 #
 
@@ -18,7 +18,7 @@ def deleteMatches():
     query = "DELETE FROM matches;"
     db_cursor.execute(query)
     conn.commit()
-    conn.close()    
+    conn.close()
 
 
 def deletePlayers():
@@ -28,7 +28,7 @@ def deletePlayers():
     query = "DELETE FROM players;"
     db_cursor.execute(query)
     conn.commit()
-    conn.close()    
+    conn.close()
 
 
 def countPlayers():
@@ -44,10 +44,10 @@ def countPlayers():
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
-  
+
     The database assigns a unique serial id number for the player.  (This
     should be handled by your SQL database schema, not in your Python code.)
-  
+
     Args:
       name: the player's full name (need not be unique).
     """
@@ -57,14 +57,14 @@ def registerPlayer(name):
     query = "INSERT INTO players (name) VALUES (%s);"
     db_cursor.execute(query, (name,))
     conn.commit()
-    conn.close()    
+    conn.close()
 
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
-    The first entry in the list should be the player in first place, or a player
-    tied for first place if there is currently a tie.
+    The first entry in the list should be the player in first place, or a
+    player tied for first place if there is currently a tie.
 
     Returns:
       A list of tuples, each of which contains (id, name, wins, matches):
@@ -75,17 +75,18 @@ def playerStandings():
     """
     conn = connect()
     db_cursor = conn.cursor()
-    base_query = "SELECT PLAYERS.id, NAME, COUNT(matches.id) as %s FROM players left join matches \
-    on players.id = %s group by players.id"
+    base_query = "SELECT PLAYERS.id, NAME, COUNT(matches.id) as %s FROM \
+    players left join matches on players.id = %s group by players.id"
     win_query = base_query % ('wins', 'winner')
-    lose_query = base_query % ('losses', 'loser')    
+    lose_query = base_query % ('losses', 'loser')
 
-    query = "SELECT winners.id, winners.name, wins, wins+losses FROM (%s) as winners left join (%s) \
-    as losers on winners.id = losers.id order by wins desc;" % (win_query, lose_query)
+    query = "SELECT winners.id, winners.name, wins, wins+losses FROM (%s) \
+    as winners left join (%s) as losers on winners.id = losers.id order by \
+    wins desc;" % (win_query, lose_query)
     db_cursor.execute(query)
     players = db_cursor.fetchall()
     conn.close()
-    return players    
+    return players
 
 
 def reportMatch(winner, loser):
@@ -100,16 +101,17 @@ def reportMatch(winner, loser):
     query = "INSERT INTO matches (winner, loser) values (%s, %s);"
     db_cursor.execute(query, (winner, loser))
     conn.commit()
-    conn.close() 
- 
+    conn.close()
+
+
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
-  
+
     Assuming that there are an even number of players registered, each player
     appears exactly once in the pairings.  Each player is paired with another
     player with an equal or nearly-equal win record, that is, a player adjacent
     to him or her in the standings.
-  
+
     Returns:
       A list of tuples, each of which contains (id1, name1, id2, name2)
         id1: the first player's unique id
@@ -119,7 +121,7 @@ def swissPairings():
     """
 
     list_of_players = playerStandings()
-    return [(x[0], x[1], list_of_players[ind+1][0], list_of_players[ind+1][1]) 
+    return [(x[0], x[1], list_of_players[ind+1][0], list_of_players[ind+1][1])
             for ind, x in enumerate(playerStandings()) if ind % 2 == 0]
 
 print playerStandings()
