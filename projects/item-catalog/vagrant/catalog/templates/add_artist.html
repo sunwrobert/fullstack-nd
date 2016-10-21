@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Genre: {{genre.name}}</h1>
+<h2>Edit Artist</h2>
+<form method="POST">
+    <label for="name">Name:</label>
+    <input id="name" name="name" type="text">
+    <label for="description">Description:</label>
+    <textarea name="description" id="description" cols="30" rows="10"></textarea>
+    <button>Submit</button>
+</form>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{genre.name}}</h1>
+<form method="POST">
+    <label for="name">Enter the new name of the genre</label>
+    <input id="name" name="name" type="text" value="{{genre.name}}">
+    <button>Submit</button>
+</form>
+{% endblock %}
