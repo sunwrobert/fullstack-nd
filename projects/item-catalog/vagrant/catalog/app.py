@@ -6,7 +6,7 @@ import string
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Genre, Artist
+from database_setup import Base, Genre, Artist, User
 
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 import httplib2
@@ -25,13 +25,33 @@ APPLICATION_NAME = "Music Lovers"
 
 # Connect to database and create database session
 engine = create_engine(
-    'postgres://mcimbpchmgqyqq:HBafey8eKVFyTioeQFDSq4A3of@ec2-54-235-108-156.\
-    compute-1.amazonaws.com:5432/da1i6798elg6el')
+    'postgres://mcimbpchmgqyqq:HBafey8eKVFyTioeQFDSq4A3of@ec2-54-235-108-156.compute-1.amazonaws.com:5432/da1i6798elg6el')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# User Helper Functions
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUser(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user
+    except:
+        return None
 
 @app.route('/login')
 def show_login():
@@ -117,6 +137,11 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    user = getUser(login_session['email'])
+    if not user:
+        user = createUser(login_session)
+    login_session['user_id'] = user.id
+
     output = ''
     output += "<h1>Welcome, %s </h1>" % login_session['username']
     flash("You are now logged in as %s" % login_session['username'])
@@ -135,8 +160,7 @@ def gdisconnect():
         message = "You aren't logged in!"
         return render_template('logout.html', message=message)
 
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' %
-    login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -163,10 +187,10 @@ def gdisconnect():
 @app.route('/genres')
 def main():
     genres = session.query(Genre).all()
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
-    return render_template('home.html', genres=genres, username=username)
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
+    return render_template('home.html', genres=genres, user=user)
 
 
 """ Genre Views"""
@@ -174,14 +198,14 @@ def main():
 
 @app.route('/genre/new', methods=['GET', 'POST'])
 def add_genre():
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
     else:
         return redirect(url_for('show_login'))
 
     if request.method == 'GET':
-        return render_template('add_genre.html', username=username)
+        return render_template('add_genre.html', user=user)
     if request.method == 'POST':
         name = request.form['name']
         if name:
@@ -189,8 +213,9 @@ def add_genre():
             # Check if exists
             if exists:
                 flash('That genre already exists!')
+                return redirect(url_for('add_genre'))                
             else:
-                newGenre = Genre(name=name)
+                newGenre = Genre(name=name, user_id=login_session['user_id'])
                 session.add(newGenre)
                 session.commit()
                 flash('Genre successfully added!')
@@ -202,14 +227,14 @@ def add_genre():
 
 @app.route('/genre/<int:genre_id>')
 def view_genre(genre_id):
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
     genre = session.query(Genre).get(genre_id)
     if genre:
         artists = session.query(Artist).filter_by(genre_id=genre.id)
         return render_template('view_genre.html', genre=genre,
-                               artists=artists, username=username)
+                               artists=artists, user=user)
     else:
         abort(404)
 
@@ -217,15 +242,19 @@ def view_genre(genre_id):
 @app.route('/genre/<int:genre_id>/edit', methods=['GET', 'POST'])
 def edit_genre(genre_id):
     genre = session.query(Genre).get(genre_id)
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
     else:
         return redirect(url_for('show_login'))
     if genre:
+        if user.id != genre.user_id:
+            flash("You don't have permission to edit this")
+            return redirect(url_for('view_genre',
+                                    genre_id=genre_id))
         if request.method == 'GET':
             return render_template('edit_genre.html', genre=genre,
-                                   username=username)
+                                   user=user)
         if request.method == 'POST':
             name = request.form['name']
             if name:
@@ -256,13 +285,17 @@ def edit_genre(genre_id):
 
 @app.route('/genre/<int:genre_id>/delete', methods=['GET', 'POST'])
 def delete_genre(genre_id):
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
     else:
         return redirect(url_for('show_login'))
     genre = session.query(Genre).get(genre_id)
     if genre:
+        if user.id != genre.user_id:
+            flash("You don't have permission to delete this")
+            return redirect(url_for('view_genre',
+                                        genre_id=genre_id))
         if request.method == 'POST':
             if genre:
                 session.delete(genre)
@@ -277,16 +310,16 @@ def delete_genre(genre_id):
 
 @app.route('/genre/<int:genre_id>/artist/new', methods=['GET', 'POST'])
 def add_artist(genre_id):
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
     else:
         return redirect(url_for('show_login'))
     genre = session.query(Genre).get(genre_id)
     if genre:
         if request.method == 'GET':
             return render_template('add_artist.html', genre=genre,
-                                   username=username)
+                                   user=user)
         if request.method == 'POST':
             name = request.form['name']
             description = request.form['description']
@@ -297,7 +330,7 @@ def add_artist(genre_id):
                     flash('That artist already exists!')
                 else:
                     newArtist = Artist(
-                        name=name, description=description, genre_id=genre.id)
+                        name=name, description=description, genre_id=genre.id, user_id = user.id)
                     session.add(newArtist)
                     session.commit()
                     flash('Artist successfully added!')
@@ -309,18 +342,20 @@ def add_artist(genre_id):
 @app.route('/genre/<int:genre_id>/artist/<int:artist_id>/edit',
            methods=['GET', 'POST'])
 def edit_artist(genre_id, artist_id):
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
     else:
         return redirect(url_for('show_login'))
     genre = session.query(Genre).get(genre_id)
     artist = session.query(Artist).get(artist_id)
     if genre and artist:
+        if user.id != artist.user_id:
+            flash("You don't have permission to edit this")
+            return redirect(url_for('view_genre', genre_id=genre_id))
         if request.method == 'GET':
-            if artist:
-                return render_template('edit_artist.html', genre=genre,
-                                       artist=artist, username=username)
+            return render_template('edit_artist.html', genre=genre,
+                                    artist=artist, user=user)
         if request.method == 'POST':
             name = request.form['name']
             description = request.form['description']
@@ -349,23 +384,24 @@ def edit_artist(genre_id, artist_id):
     else:
         abort(404)
 
-
 @app.route('/genre/<int:genre_id>/artist/<int:artist_id>/delete',
            methods=['GET', 'POST'])
 def delete_artist(genre_id, artist_id):
-    username = ''
-    if 'username' in login_session:
-        username = login_session['username']
+    user = ''
+    if 'email' in login_session:
+        user = getUser(login_session['email'])
     else:
         return redirect(url_for('show_login'))
     artist = session.query(Artist).get(artist_id)
     if artist:
+        if user.id != artist.user_id:
+            flash("You don't have permission to delete this")
+            return redirect(url_for('view_genre', genre_id=genre_id))
         if request.method == 'POST':
-            if artist:
-                session.delete(artist)
-                session.commit()
-                flash("Artist successfully deleted!")
-                return redirect(url_for('view_genre', genre_id=genre_id))
+            session.delete(artist)
+            session.commit()
+            flash("Artist successfully deleted!")
+            return redirect(url_for('view_genre', genre_id=genre_id))
     else:
         abort(404)
 
@@ -412,5 +448,6 @@ def view_artist_json(genre_id, artist_id):
 def page_not_found(e):
     return render_template('404.html'), 404
 
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

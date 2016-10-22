@@ -26,10 +26,10 @@
                 Music Lovers
             </h1>
             <h2 class="subtitle is-3">
-                {% if username %}
-                Welcome, {{username}} <a href="{{url_for('gdisconnect')}}"><small>Logout</small></a>
+                {% if user %}
+                Welcome, {{user.name}} <a href="{{url_for('gdisconnect')}}"><small>Logout</small></a>
                 {% endif %}
-                {% if not username %}
+                {% if not user %}
                 <a href="{{url_for('show_login')}}">Login</a>
                 {% endif %}
             </h2>
