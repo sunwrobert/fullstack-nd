@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
+from flask import Flask, render_template, request, redirect
+from flask import url_for, flash, abort, jsonify
 from flask import session as login_session
-import random, string
+import random
+import string
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -18,15 +20,18 @@ app.debug = True
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
-    
+
 APPLICATION_NAME = "Music Lovers"
 
 # Connect to database and create database session
-engine = create_engine('postgres://mcimbpchmgqyqq:HBafey8eKVFyTioeQFDSq4A3of@ec2-54-235-108-156.compute-1.amazonaws.com:5432/da1i6798elg6el')
+engine = create_engine(
+    'postgres://mcimbpchmgqyqq:HBafey8eKVFyTioeQFDSq4A3of@ec2-54-235-108-156.\
+    compute-1.amazonaws.com:5432/da1i6798elg6el')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
 
 @app.route('/login')
 def show_login():
@@ -37,7 +42,8 @@ def show_login():
     if 'username' in login_session:
         username = login_session['username']
 
-    return render_template('login.html', STATE=state, username = username)
+    return render_template('login.html', STATE=state, username=username)
+
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -91,8 +97,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -123,32 +129,36 @@ def gconnect():
 def gdisconnect():
     if 'access_token' not in login_session:
         print 'Access Token is None'
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(
+            json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         message = "You aren't logged in!"
-    	return render_template('logout.html', message = message)
+        return render_template('logout.html', message=message)
 
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' %
+    login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
     print result
     if result['status'] == '200':
-        del login_session['access_token'] 
+        del login_session['access_token']
         del login_session['gplus_id']
         del login_session['username']
         del login_session['email']
         del login_session['picture']
-    	response = make_response(json.dumps('Successfully disconnected.'), 200)
-    	response.headers['Content-Type'] = 'application/json'
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
         message = 'Successfully disconnected!'
-    	return render_template('logout.html', message = message)
+        return render_template('logout.html', message=message)
     else:
-    	response = make_response(json.dumps('Failed to revoke token for given user.', 400))
-    	response.headers['Content-Type'] = 'application/json'
-    	message = 'An error occured!'
-    	return render_template('logout.html', message = message)
-        
+        response = make_response(
+            json.dumps('Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        message = 'An error occured!'
+        return render_template('logout.html', message=message)
+
+
 @app.route('/')
 @app.route('/genres')
 def main():
@@ -160,6 +170,8 @@ def main():
 
 
 """ Genre Views"""
+
+
 @app.route('/genre/new', methods=['GET', 'POST'])
 def add_genre():
     username = ''
@@ -169,15 +181,16 @@ def add_genre():
         return redirect(url_for('show_login'))
 
     if request.method == 'GET':
-        return render_template('add_genre.html', username=username)        
+        return render_template('add_genre.html', username=username)
     if request.method == 'POST':
         name = request.form['name']
         if name:
             exists = session.query(Genre).filter_by(name=name).first()
+            # Check if exists
             if exists:
                 flash('That genre already exists!')
             else:
-                newGenre = Genre(name = name)
+                newGenre = Genre(name=name)
                 session.add(newGenre)
                 session.commit()
                 flash('Genre successfully added!')
@@ -185,7 +198,8 @@ def add_genre():
             flash("Please enter a name")
             return redirect(url_for('add_genre'))
         return redirect(url_for('main'))
-    
+
+
 @app.route('/genre/<int:genre_id>')
 def view_genre(genre_id):
     username = ''
@@ -193,8 +207,9 @@ def view_genre(genre_id):
         username = login_session['username']
     genre = session.query(Genre).get(genre_id)
     if genre:
-        artists = session.query(Artist).filter_by(genre_id=genre.id)        
-        return render_template('view_genre.html', genre=genre, artists=artists, username=username)
+        artists = session.query(Artist).filter_by(genre_id=genre.id)
+        return render_template('view_genre.html', genre=genre,
+                               artists=artists, username=username)
     else:
         abort(404)
 
@@ -209,27 +224,35 @@ def edit_genre(genre_id):
         return redirect(url_for('show_login'))
     if genre:
         if request.method == 'GET':
-            return render_template('edit_genre.html', genre=genre, username=username)
+            return render_template('edit_genre.html', genre=genre,
+                                   username=username)
         if request.method == 'POST':
             name = request.form['name']
             if name:
+                # Don't allow same name as previous name
                 if name != genre.name:
+                    # Check if exists
                     exists = session.query(Genre).filter_by(name=name).first()
                     if exists:
-                        flash("That genre already exists! Please rename it to something else")
+                        flash(
+                            "That genre already exists!")
                     else:
+                        # otherwise, add to db
                         genre.name = name
                         session.add(genre)
                         session.commit()
                         flash('Genre info successfully edited!')
-                        return redirect(url_for('view_genre', genre_id=genre_id))
+                        return redirect(url_for('view_genre',
+                                        genre_id=genre_id))
                 else:
-                    flash('Please enter a different name than the original one')
+                    flash(
+                        'Please enter a different name than the original one')
             else:
                 flash("Please enter a name")
             return redirect(url_for('edit_genre', genre_id=genre_id))
     else:
         abort(404)
+
 
 @app.route('/genre/<int:genre_id>/delete', methods=['GET', 'POST'])
 def delete_genre(genre_id):
@@ -250,6 +273,8 @@ def delete_genre(genre_id):
         abort(404)
 
 """ Artist Views"""
+
+
 @app.route('/genre/<int:genre_id>/artist/new', methods=['GET', 'POST'])
 def add_artist(genre_id):
     username = ''
@@ -260,16 +285,19 @@ def add_artist(genre_id):
     genre = session.query(Genre).get(genre_id)
     if genre:
         if request.method == 'GET':
-            return render_template('add_artist.html', genre = genre, username=username)
+            return render_template('add_artist.html', genre=genre,
+                                   username=username)
         if request.method == 'POST':
             name = request.form['name']
             description = request.form['description']
             if name:
+                # check exists
                 exists = session.query(Artist).filter_by(name=name).first()
                 if exists:
                     flash('That artist already exists!')
                 else:
-                    newArtist = Artist(name = name, description = description, genre_id = genre.id)
+                    newArtist = Artist(
+                        name=name, description=description, genre_id=genre.id)
                     session.add(newArtist)
                     session.commit()
                     flash('Artist successfully added!')
@@ -277,7 +305,9 @@ def add_artist(genre_id):
     else:
         abort(404)
 
-@app.route('/genre/<int:genre_id>/artist/<int:artist_id>/edit', methods=['GET', 'POST'])
+
+@app.route('/genre/<int:genre_id>/artist/<int:artist_id>/edit',
+           methods=['GET', 'POST'])
 def edit_artist(genre_id, artist_id):
     username = ''
     if 'username' in login_session:
@@ -289,32 +319,39 @@ def edit_artist(genre_id, artist_id):
     if genre and artist:
         if request.method == 'GET':
             if artist:
-                return render_template('edit_artist.html', genre=genre, artist=artist, username=username)
+                return render_template('edit_artist.html', genre=genre,
+                                       artist=artist, username=username)
         if request.method == 'POST':
             name = request.form['name']
             description = request.form['description']
             if name:
+                # User has to either change the name or the description to
+                # update the artist
                 if name != artist.name or description != artist.description:
                     exists = session.query(Artist).filter_by(name=name).first()
                     if exists and description == artist.description:
-                        flash('That artist already exists! Please rename the artist to something else')
+                        flash('That artist already exists!')
                     else:
                         artist.name = name
                         artist.description = description
                         session.add(artist)
                         session.commit()
                         flash('Artist info successfully edited!')
-                        return redirect(url_for('view_genre', genre_id=genre_id))
+                        return redirect(url_for('view_genre',
+                                        genre_id=genre_id))
                 else:
-                    flash('Please enter a different name than the original one')
+                    flash(
+                        'Please enter a different name than the original one')
             else:
                 flash('Please enter a name')
-
-            return redirect(url_for('edit_artist', genre_id=genre_id, artist_id=artist_id))
+            return redirect(url_for('edit_artist', genre_id=genre_id,
+                            artist_id=artist_id))
     else:
         abort(404)
 
-@app.route('/genre/<int:genre_id>/artist/<int:artist_id>/delete', methods=['GET', 'POST'])
+
+@app.route('/genre/<int:genre_id>/artist/<int:artist_id>/delete',
+           methods=['GET', 'POST'])
 def delete_artist(genre_id, artist_id):
     username = ''
     if 'username' in login_session:
@@ -333,6 +370,8 @@ def delete_artist(genre_id, artist_id):
         abort(404)
 
 """ API Endpoints """
+
+
 @app.route('/genre/JSON')
 def view_genres_json():
     genres = session.query(Genre).all()
@@ -340,6 +379,7 @@ def view_genres_json():
         return jsonify(Genres=[genre.serialize for genre in genres])
     else:
         abort(404)
+
 
 @app.route('/genre/<int:genre_id>/JSON')
 def view_genre_json(genre_id):
@@ -349,6 +389,7 @@ def view_genre_json(genre_id):
     else:
         abort(404)
 
+
 @app.route('/artist/JSON')
 def view_artists_json():
     artists = session.query(Artist).all()
@@ -356,6 +397,7 @@ def view_artists_json():
         return jsonify(Artists=[artist.serialize for artist in artists])
     else:
         abort(404)
+
 
 @app.route('/genre/<int:genre_id>/artist/<int:artist_id>/JSON')
 def view_artist_json(genre_id, artist_id):
@@ -365,9 +407,10 @@ def view_artist_json(genre_id, artist_id):
     else:
         abort(404)
 
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)
