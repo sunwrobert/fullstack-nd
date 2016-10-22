@@ -12,21 +12,41 @@
     <title>Music Lovers</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.2.3/css/bulma.min.css">    
 </head>
 
 <body>
     <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+    <section class="hero is-dark is-bold">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+            <h1 class="title is-1">
+                Music Lovers
+            </h1>
+            <h2 class="subtitle is-3">
+                {% if username %}
+                Welcome, {{username}} <a href="{{url_for('gdisconnect')}}"><small>Logout</small></a>
+                {% endif %}
+                {% if not username %}
+                <a href="{{url_for('show_login')}}">Login</a>
+                {% endif %}
+            </h2>
+            </div>
+        </div>
+    </section>
     {% with messages = get_flashed_messages() %} 
         {% if messages %}
             {% for message in messages %}
-            <h2>{{ message }}</h2>
+            <div class="notification has-text-centered is-info" style="margin: 0;">
+                <p>{{message}}</p>
+            </div>
             {% endfor %}
         {% endif %} 
-    {% endwith %} 
+    {% endwith %}
+
     {% block content %} 
     {% endblock %}
 </body>
-
 </html>

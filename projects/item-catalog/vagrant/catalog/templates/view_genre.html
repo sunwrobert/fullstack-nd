@@ -1,17 +1,51 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>{{genre.name}}</h1>
-<form method="POST" action="{{url_for('delete_genre', genre_id=genre.id)}}">
-    <p>
-        <a href="{{url_for('edit_genre', genre_id=genre.id)}}">edit</a><button>delete</button>
-    </p>
-</form>
-<a href="{{url_for('add_artist', genre_id=genre.id)}}">add artists</a>
-<h2>Artists</h2>
-{% for artist in artists %}
-    <form method="POST" action="{{url_for('delete_artist', genre_id=genre.id, artist_id=artist.id)}}">
-        <p>{{artist.name}} <a href="{{url_for('edit_artist', genre_id=genre.id, artist_id=artist.id)}}">edit</a><button>delete</button></p>
-        <p>{{artist.description.replace('\n', '<br>') | safe}}</p>
-    </form>
-{% endfor %}
+{% extends "base.html" %} {% block content %}
+<section class="section">
+    <div class="container">
+        <h2 class="title is-2">{{genre.name}}</h2>
+        <form method="POST" action="{{url_for('delete_genre', genre_id=genre.id)}}">
+            <div class="control is-grouped">
+                <p class="control">
+                    <a class="button" href="{{url_for('edit_genre', genre_id=genre.id)}}">Edit</a>
+                </p>
+                <p class="control">
+                    <button class="button is-danger">Delete</button>
+                </p>
+                <p class="control">
+                    <a class="button is-primary" href="{{url_for('add_artist', genre_id=genre.id)}}">Add Artists</a>
+                </p>
+            </div>
+        </form>
+        <a href="{{url_for('main')}}">Home</a>
+    </div>
+
+</section>
+
+<section class="section">
+    <div class="container">
+        <h2 class="title is-2">Artists</h2>
+        {% for artist in artists %}
+        <div class="box">
+            <form method="POST" action="{{url_for('delete_artist', genre_id=genre.id, artist_id=artist.id)}}">
+                <div class="content">
+                    <p><strong>{{artist.name}}</strong></p>
+                    <p>{{artist.description.replace('\n', '<br>') | safe}}</p>
+                </div>
+                <nav class="level">
+                    <div class="level-left">
+                        <div class="level-item">
+                            <a class="button is-small" href="{{url_for('edit_artist', genre_id=genre.id, artist_id=artist.id)}}">Edit</a>
+                        </div>
+                        <div class="level-item">
+                            <button class="button is-small is-danger">Delete</button>
+                        </div>
+                    </div>
+                </nav>
+            </form>
+        </div>
+
+        {% endfor %}
+        
+    </div>
+</section>
+
 {% endblock %}

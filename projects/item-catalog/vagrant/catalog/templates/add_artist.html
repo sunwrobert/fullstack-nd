@@ -1,13 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Genre: {{genre.name}}</h1>
-<h2>Edit Artist</h2>
-<form method="POST">
-    <label for="name">Name:</label>
-    <input id="name" name="name" type="text">
-    <label for="description">Description:</label>
-    <textarea name="description" id="description" cols="30" rows="10"></textarea>
-    <button>Submit</button>
-</form>
+<div class="section">
+    <div class="container">
+        <h2 class="title is-2">Add Artist</h2>
+        <h4 class="subtitle is-4">Genre: {{genre.name}}</h4>
+        <div class="content">
+            <form method="POST">
+                <label class="label" for="name">Name</label>
+                <p class="control">
+                    <input class="input" id="name" name="name" type="text">
+                </p>
+                <label class="label" for="description">Description</label>                
+                <p class="control">
+                    <textarea class="textarea" name="description" id="description" cols="30" rows="10"></textarea>
+                </p>
+                <p class="control">
+                    <button class="button is-primary">Add</button>
+                    <a href="{{url_for('view_genre', genre_id=genre.id)}}" class="button is-link">Cancel</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

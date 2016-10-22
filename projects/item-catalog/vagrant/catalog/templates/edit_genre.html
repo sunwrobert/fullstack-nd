@@ -1,9 +1,20 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>{{genre.name}}</h1>
-<form method="POST">
-    <label for="name">Enter the new name of the genre</label>
-    <input id="name" name="name" type="text" value="{{genre.name}}">
-    <button>Submit</button>
-</form>
+{% extends "base.html" %} {% block content %}
+<div class="section">
+    <div class="container">
+        <h2 class="title is-2">{{genre.name}}</h2>
+        <div class="content">
+            <form method="POST">
+                <label class="label" for="name">Name</label>
+                <p class="control">
+                    <input class="input" id="name" name="name" type="text" value="{{genre.name}}">
+                </p>
+                <p class="control">
+                    <button class="button is-primary">Submit</button>
+                    <a href="{{url_for('view_genre', genre_id=genre.id)}}" class="button is-link">Cancel</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

@@ -1,8 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Home</h1>
-<a href="{{url_for('add_genre')}}">add genre</a>
-{% for genre in genres %}
-<p>{{genre.name}} <a href="{{url_for('view_genre', genre_id=genre.id)}}">view</a></p>
-{% endfor %}
-{% endblock %}
+<section class="section">
+    <div class="container">
+        <h2 class="title is-2">Genres</h2>
+        <p><a class="button" href="{{url_for('add_genre')}}">Add genre</a></p>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        {% for genre in genres %}
+        <div class="box">
+            <h3 class="title is-3">{{genre.name}}</h3>
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <a href="{{url_for('view_genre', genre_id=genre.id)}}">view</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endblock %}
+    </div>
+</section>
