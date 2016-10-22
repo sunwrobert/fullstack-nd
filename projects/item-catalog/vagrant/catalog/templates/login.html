@@ -13,10 +13,10 @@
 <div class="section">
   <div class="container">
     <h1 class="title is-2">Login with your Google account</h1>
+    <p>{{message}}</p>
     <div id="signInButton">
       <span class="g-signin" data-scope="openid email" data-clientid="277147348445-vlr9fqpr6422roakmae95o0t5dh19lko.apps.googleusercontent.com"
-        data-redirecturi="postmessage" data-accesstype="offline" data-cookiepolicy="single_host_origin" data-callback="signInCallback"
-        data-approvalprompt="force">
+        data-redirecturi="postmessage" data-accesstype="offline" data-cookiepolicy="single_host_origin" data-callback="signInCallback">
           </span>
     </div>
     <div id="result"></div>    
@@ -30,7 +30,7 @@ function signInCallback(authResult) {
   if (authResult['code']) {
 
     // Hide the sign-in button now that the user is authorized
-    $('#signinButton').attr('style', 'display: none');
+    $('#signInButton').attr('style', 'display: none');
 
     // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
     $.ajax({

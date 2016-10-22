@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask import session as login_session
 import random, string
 
@@ -33,7 +33,11 @@ def show_login():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template('login.html', STATE=state)
+    username = ''
+    if 'username' in login_session:
+        username = login_session['username']
+
+    return render_template('login.html', STATE=state, username = username)
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -194,6 +198,7 @@ def view_genre(genre_id):
     else:
         abort(404)
 
+
 @app.route('/genre/<int:genre_id>/edit', methods=['GET', 'POST'])
 def edit_genre(genre_id):
     genre = session.query(Genre).get(genre_id)
@@ -217,7 +222,7 @@ def edit_genre(genre_id):
                         session.add(genre)
                         session.commit()
                         flash('Genre info successfully edited!')
-                        return redirect(url_for('main'))
+                        return redirect(url_for('view_genre', genre_id=genre_id))
                 else:
                     flash('Please enter a different name than the original one')
             else:
@@ -289,9 +294,9 @@ def edit_artist(genre_id, artist_id):
             name = request.form['name']
             description = request.form['description']
             if name:
-                if name != artist.name:
+                if name != artist.name or description != artist.description:
                     exists = session.query(Artist).filter_by(name=name).first()
-                    if exists:
+                    if exists and description == artist.description:
                         flash('That artist already exists! Please rename the artist to something else')
                     else:
                         artist.name = name
@@ -324,6 +329,39 @@ def delete_artist(genre_id, artist_id):
                 session.commit()
                 flash("Artist successfully deleted!")
                 return redirect(url_for('view_genre', genre_id=genre_id))
+    else:
+        abort(404)
+
+""" API Endpoints """
+@app.route('/genre/JSON')
+def view_genres_json():
+    genres = session.query(Genre).all()
+    if genres:
+        return jsonify(Genres=[genre.serialize for genre in genres])
+    else:
+        abort(404)
+
+@app.route('/genre/<int:genre_id>/JSON')
+def view_genre_json(genre_id):
+    genre = session.query(Genre).get(genre_id)
+    if genre:
+        return jsonify(Genre=genre.serialize)
+    else:
+        abort(404)
+
+@app.route('/artist/JSON')
+def view_artists_json():
+    artists = session.query(Artist).all()
+    if artists:
+        return jsonify(Artists=[artist.serialize for artist in artists])
+    else:
+        abort(404)
+
+@app.route('/genre/<int:genre_id>/artist/<int:artist_id>/JSON')
+def view_artist_json(genre_id, artist_id):
+    artist = session.query(Artist).get(artist_id)
+    if artist:
+        return jsonify(Artist=artist.serialize)
     else:
         abort(404)
 

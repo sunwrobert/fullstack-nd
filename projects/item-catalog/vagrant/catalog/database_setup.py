@@ -12,6 +12,12 @@ class Genre(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     items = relationship('Artist', cascade="all, delete-orphan")
+    @property
+    def serialize(self):
+        return {
+            'name': self.name,
+            'id': self.id
+        }
 
 
 class Artist(Base):
@@ -22,6 +28,15 @@ class Artist(Base):
     description = Column(String(250))
     genre_id = Column(Integer, ForeignKey('genre.id'))
     genre = relationship(Genre)
+
+    @property
+    def serialize(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'id': self.id,
+            'genre_id': self.genre_id
+        }
 
 engine = create_engine('postgres://mcimbpchmgqyqq:HBafey8eKVFyTioeQFDSq4A3of@ec2-54-235-108-156.compute-1.amazonaws.com:5432/da1i6798elg6el')
 Base.metadata.create_all(engine)
