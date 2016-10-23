@@ -14,3 +14,6 @@ This application displays a list of items (Artists) within a variety of categori
 6. Navigate to `localhost:5000`
 
 NOTE: You need to make your own database solution for running this locally, as the app currently uses a public heroku postgres database.
+
+
+Live site can be visited at https://fsnd-item-catalog.herokuapp.com/
