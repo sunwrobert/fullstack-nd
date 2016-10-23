@@ -58,6 +58,7 @@ class Artist(Base):
         }
 
 
+# Actual database URL hidden from public repo
 
-engine = create_engine('postgres://mcimbpchmgqyqq:HBafey8eKVFyTioeQFDSq4A3of@ec2-54-235-108-156.compute-1.amazonaws.com:5432/da1i6798elg6el')
+engine = create_engine('xxx')
 Base.metadata.create_all(engine)

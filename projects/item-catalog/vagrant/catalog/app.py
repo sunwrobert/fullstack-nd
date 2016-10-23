@@ -24,8 +24,10 @@ CLIENT_ID = json.loads(
 APPLICATION_NAME = "Music Lovers"
 
 # Connect to database and create database session
+
+# Actual database URL hidden from public repo
 engine = create_engine(
-    'postgres://mcimbpchmgqyqq:HBafey8eKVFyTioeQFDSq4A3of@ec2-54-235-108-156.compute-1.amazonaws.com:5432/da1i6798elg6el')
+    'xxx')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
